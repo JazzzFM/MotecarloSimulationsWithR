@@ -1,20 +1,36 @@
 library(tidyverse)
-library(shiny)
 library(dplyr)
 library(ggplot2)
+
+#Class-Function for mean, median, std, etc.
+stat <- function(df){
+  df[is.na(df)] <- 0.0
+  
+  values <- list(long = length(df), media = mean(df), mediana = median(df), moda = mode(df), varianza = var(df), std = sqrt(var(df)))
+  
+  attr(values, "class") <- "student"
+  values
+  
+}
 # Load Titanic data for analysis. Open in spreadsheet view.
 titanic <- read.csv("C:/Users/Jorge/Documents/Programacion/Proyectos/Titanic_Probabilidad/Datasets/Titanic/train.csv", 
                     stringsAsFactors = FALSE)
 View(titanic)
 
-
+colnames(titanic)
 # Set up factors.
 titanic$Pclass <- as.factor(titanic$Pclass)
 titanic$Survived <- as.factor(titanic$Survived)
 titanic$Sex <- as.factor(titanic$Sex)
 titanic$Embarked <- as.factor(titanic$Embarked)
+titanic$Age <- as.factor(titanic$Age)
+titanic$Fare <- as.factor(titanic$Fare)
 
-
+Age_info <- stat(titanic$Age)
+Fare_info <- stat(titanic$Age)
+Age_info$std
+Fare_info$media
+Fare_info$std
 #
 # We'll start our visual analysis of the data focusing on questions
 # related to survival rates. Specifically, these questions will use
@@ -22,7 +38,13 @@ titanic$Embarked <- as.factor(titanic$Embarked)
 # is very common in the business context and ggplot2 offers many
 # powerful features for visualizing factor data.
 #
-
+ggplot() +
+  theme_bw() +
+  geom_histogram(data = titanic, aes(x = Age, fill = Survived, binwidth = 5) +
+  pnorm(, mean=50, sd=20) +
+  labs(y = "Conteo de Pasajeros",
+       x = "Edad (binwidth = 5)",
+       title = "Sobrevivencia por edad")
 
 #
 # First question - What was the survival rate? 
@@ -120,7 +142,7 @@ ggplot(titanic, aes(x = Age, fill = Survived)) +
 # plot.
 ggplot(titanic, aes(x = Survived, y = Age)) +
   theme_bw() +
-  geom_boxplot() +
+  geom_boxplot() +cd
   labs(y = "Age",
        x = "Survived",
        title = "Titanic Survival Rates by Age")
