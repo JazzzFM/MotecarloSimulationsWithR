@@ -7,8 +7,7 @@ stat <- function(df){
   df[is.na(df)] <- 0.0
   
   values <- list(long = length(df), media = mean(df), mediana = median(df), moda = mode(df), varianza = var(df), std = sqrt(var(df)))
-  
-  attr(values, "class") <- "student"
+
   values
   
 }
