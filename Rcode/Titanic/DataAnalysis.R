@@ -56,7 +56,7 @@ ui <- fluidPage(
 server <- function(input, output) {
   
   output$distPlot <- renderPlot({
-    ggplot(titanic, aes(x = Age, fill = Survived)) +
+    ggplot(titanic, aes(x = Age, fill = Survived, group=a$densidad)) +
       theme_bw() +
       facet_wrap(Sex ~ Pclass) +
       geom_histogram(binwidth = 5) +
