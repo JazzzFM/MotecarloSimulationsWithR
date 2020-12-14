@@ -2,6 +2,7 @@ library(tidyverse)
 library(ggplot2)
 library(shiny)
 
+
 titanic <- read.csv("C:/Users/Jorge/Documents/Programacion/Proyectos/Titanic_Probabilidad/Datasets/Titanic/train.csv", 
                     stringsAsFactors = FALSE)
 
@@ -16,38 +17,30 @@ ui <- fluidPage(
   hr(),
   h2("Escuela Superior de Física y Matemáticas",  align = "center"),
   h4("Created by Jaziel David Flores Rodríguez & Jorge Peralta García",  align = "center"),
-    
     # Show a plot of the generated distribution
     mainPanel(
-      tags$link(rel="stylesheet",href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"),
-      tags$div(class="navbar",
-               tags$a(href="#titanic","Titanic"),
-               tags$a(href="#densidad","Densidades de probabilidad"),
-               tags$a(href="#montecarlo","Montecarlo"),
-      tags$style(HTML("
-      /* The navigation menu */
-      .navbar {
-        overflow: hidden;
-        background-color: #333;
-      }
-      
-      /* Navigation links */
-      .navbar a {
-        float: left;
-        font-size: 16px;
-        color: white;
-        text-align: center;
-        padding: 14px 16px;
-        text-decoration: none;
-      }
-      
-      /* Add a red background color to navigation links on hover */
-      .navbar a:hover {
-        background-color: red;
-      }
-      "))
-      ),
-      plotOutput("distPlot")
+      tabsetPanel(
+        tabPanel("Gráficas", plotOutput("plot")), 
+        tabPanel("Montecarlo", 
+                 sidebarLayout(
+                   sidebarPanel(
+                     sliderInput("bins",
+                                 "Number of bins:",
+                                 min = 1,
+                                 max = 50,
+                                 value = 30)
+                   ),
+                   plotOutput("montecarlo")
+                  )
+                ),
+        tabPanel("Tabla",
+                  fluidRow(
+                    column(12,
+                      dataTableOutput('table')
+                    )
+                  )
+                )
+      )
     )
 )
 
@@ -55,16 +48,35 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   
-  output$distPlot <- renderPlot({
-    ggplot(titanic, aes(x = Age, fill = Survived, group=a$densidad)) +
+  output$plot <- renderPlot({
+    ggplot(titanic, aes(x = Sex, fill = Survived)) + 
+      scale_fill_discrete(name = "Sexo", labels = c("Mujer", "Hombre"))+
       theme_bw() +
-      facet_wrap(Sex ~ Pclass) +
-      geom_histogram(binwidth = 5) +
-      labs(y = "Edad",
-           x = "Sobrevivientes",
-           title = "Sobrevivientes del Titanic por Edad, PClase y Sexo")
+      geom_bar() +
+      labs(x = 'Sexo',y = "Número de pasajeros",
+           title = "Sobrevivencia por sexo")
+    ggplot(as.data.frame(p), aes(x=Var2,y=Freq,fill=Var1)) +
+      scale_fill_discrete(name = "Sexo", labels = c("Mujer", "Hombre"))+
+      theme_bw() +
+      geom_col() +
+      labs(x = '0=Muertos,1=Vivos',y = "Porcentaje de pasajeros",
+           title = "Porcentaje de sobrevivencia por sexo")
   })
+  
+  output$table <- renderDataTable(titanic)
+  
+  output$montecarlo <- renderPlot({
+    # generate bins based on input$bins from ui.R
+    x    <- faithful[, 2]
+    bins <- seq(min(x), max(x), length.out = input$bins + 1)
+    
+    # draw the histogram with the specified number of bins
+    hist(x, breaks = bins, col = 'darkgray', border = 'white')
+  })
+
 }
+
+
 
 # Run the application 
 shinyApp(ui = ui, server = server)

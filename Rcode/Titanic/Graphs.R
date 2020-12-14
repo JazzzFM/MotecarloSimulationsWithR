@@ -36,7 +36,8 @@ Fare_info$std
 
 p<-prop.table(table(titanic$Sex,titanic$Survived),2)
 
-ggplot(titanic, aes(x = Sex, fill = Survived)) + 
+ggplot(titanic, aes(x = Sex, fill = Survived)) +
+  scale_fill_discrete(name = "Sexo", labels = c("Mujer", "Hombre"))+
   theme_bw() +
   geom_bar() +
   labs(x = 'Sexo',y = "Número de pasajeros",
