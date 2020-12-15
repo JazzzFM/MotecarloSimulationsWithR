@@ -18,9 +18,22 @@ ui <- fluidPage(
   h2("Escuela Superior de Física y Matemáticas",  align = "center"),
   h4("Created by Jaziel David Flores Rodríguez & Jorge Peralta García",  align = "center"),
     # Show a plot of the generated distribution
-    mainPanel(
+
       tabsetPanel(
-        tabPanel("Gráficas", plotOutput("plot")), 
+        tabPanel("Gráficas",
+                 fluidRow(
+                    box(solidHeader = TRUE,
+                        collapsible = TRUE, plotOutput("plot1")
+                    ),
+                    box(plotOutput("plot2")),
+                    box(solidHeader = TRUE,
+                        collapsible = TRUE, plotOutput("plot3")
+                    ),
+                    box(plotOutput("plot4"))
+                 )
+                 
+        ), 
+        
         tabPanel("Montecarlo", 
                  sidebarLayout(
                    sidebarPanel(
@@ -32,36 +45,60 @@ ui <- fluidPage(
                    ),
                    plotOutput("montecarlo")
                   )
-                ),
+        ),
+        
         tabPanel("Tabla",
                   fluidRow(
                     column(12,
                       dataTableOutput('table')
                     )
                   )
-                )
+        )
+        
       )
-    )
 )
 
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   
-  output$plot <- renderPlot({
+  output$plot1 <- renderPlot({
     ggplot(titanic, aes(x = Sex, fill = Survived)) + 
       scale_fill_discrete(name = "Sexo", labels = c("Mujer", "Hombre"))+
       theme_bw() +
       geom_bar() +
       labs(x = 'Sexo',y = "Número de pasajeros",
            title = "Sobrevivencia por sexo")
-    ggplot(as.data.frame(p), aes(x=Var2,y=Freq,fill=Var1)) +
+  })
+  
+  output$plot2 <- renderPlot({
+    ggplot(as.data.frame(prop.table(table(titanic$Sex,titanic$Survived),2)), 
+           aes(x=Var2,y=Freq,fill=Var1)) +
       scale_fill_discrete(name = "Sexo", labels = c("Mujer", "Hombre"))+
       theme_bw() +
       geom_col() +
       labs(x = '0=Muertos,1=Vivos',y = "Porcentaje de pasajeros",
            title = "Porcentaje de sobrevivencia por sexo")
   })
+  
+  output$plot3 <- renderPlot({
+    ggplot(titanic, aes(x = Pclass, fill = Survived)) + 
+      theme_bw() +
+      geom_bar() +
+      labs(x = 'Sexo',y = "Número de pasajeros",
+           title = "Sobrevivencia por clase de pasajero")
+  })
+  
+  output$plot4 <- renderPlot({
+    ggplot(as.data.frame(prop.table(table(titanic$Pclass,titanic$Survived),2)), 
+           aes(x=Var2,y=Freq,fill=Var1)) +
+      scale_fill_discrete(name = "Clase", labels = c("Alta", "Media", "Baja"))+
+      theme_bw() +
+      geom_col() +
+      labs(x = '0=Muertos,1=Vivos',y = "Porcentaje de pasajeros",
+           title = "Porcentaje de sobrevivencia por clase de pasajero")
+  })
+  
   
   output$table <- renderDataTable(titanic)
   
